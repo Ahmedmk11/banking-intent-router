@@ -1,1 +1,1 @@
-# legal-intent-guardrail
+# banking-intent-router
