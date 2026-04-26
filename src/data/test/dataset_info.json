@@ -1,0 +1,52 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "banking77",
+  "dataset_size": 920674,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/legacy-datasets/banking77@f54121560de48f2852f90be299010d1d6dc612ec/data/train-00000-of-00001.parquet": {
+      "num_bytes": 298170,
+      "checksum": null
+    },
+    "hf://datasets/legacy-datasets/banking77@f54121560de48f2852f90be299010d1d6dc612ec/data/test-00000-of-00001.parquet": {
+      "num_bytes": 93870,
+      "checksum": null
+    }
+  },
+  "download_size": 392040,
+  "features": {
+    "text": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "intent": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 1312714,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 716279,
+      "num_examples": 10003,
+      "dataset_name": "banking77"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 204395,
+      "num_examples": 3080,
+      "dataset_name": "banking77"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

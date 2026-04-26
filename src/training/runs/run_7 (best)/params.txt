@@ -1,0 +1,12 @@
+model:         sentence-transformers/all-MiniLM-L6-v2
+loss:          MultipleNegativesRankingLoss
+epochs:        15
+batch_size:    64
+learning_rate: 2e-4
+lora r:        16
+lora_alpha:    32
+lora_dropout:  0.05
+target_modules: [query, value, key, dense]
+base accuracy:     0.8494
+finetuned accuracy: 0.9130
+improvement:       +0.0636
