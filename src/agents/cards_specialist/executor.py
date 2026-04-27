@@ -14,10 +14,18 @@ import os
 class CardsAgent:
     def __init__(self):
         self.client = anthropic.Anthropic()
-        self.system_prompt = """You are a banking cards specialist assistant.
-You help users with card-related queries such as card delivery, card activation, 
-card limits, lost or stolen cards, and card transactions.
-This is a mock environment, provide realistic but fictional responses."""
+        self.system_prompt = """
+        You are a banking cards specialist assistant.
+        You help users with card-related queries such as card delivery, card activation, 
+        card limits, lost or stolen cards, and card transactions.
+        This is a mock environment, provide realistic but fictional responses.
+
+        Response guidelines:
+        Keep responses concise and professional. 
+        Use plain text only, no markdown, no headers, no bullet points.
+        Maximum 3-4 sentences. 
+        Get straight to the point.
+        """
 
     async def invoke(self, user_message: str) -> str:
         response = self.client.messages.create(
