@@ -1,6 +1,10 @@
 import uvicorn
 from dotenv import load_dotenv
 from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.requests import Request
+from starlette.routing import Route
+
 
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
@@ -16,6 +20,8 @@ from a2a.server.routes import (
 )
 
 from executor import OrchestratorExecutor
+from contextlib import asynccontextmanager
+import asyncio
 
 load_dotenv()
 
@@ -49,13 +55,28 @@ if __name__ == '__main__':
         skills=[skill],
     )
 
-    from contextlib import asynccontextmanager
-
     executor = OrchestratorExecutor()
+
+    async def cli_loop():
+        await asyncio.sleep(1)
+        print("\n=== Banking Intent Router ===")
+        print("Type your query (or 'quit' to exit):\n")
+        
+        while True:
+            user_input = (await asyncio.to_thread(input, "> ")).strip()
+            if user_input.lower() == 'quit':
+                print("Goodbye!")
+                break
+            if not user_input:
+                continue
+            
+            result = await executor.agent.invoke(user_input)
+            print(f"\n{result}\n")
 
     @asynccontextmanager
     async def lifespan(app):
         await executor.agent.initialize()
+        asyncio.create_task(cli_loop())
         yield
 
     request_handler = DefaultRequestHandler(
@@ -64,9 +85,15 @@ if __name__ == '__main__':
         agent_card=public_agent_card,
     )
 
+    async def debug_route(request: Request):
+        body = await request.json()
+        return JSONResponse({"received_method": body.get("method")})
+
+
     routes = []
     routes.extend(create_agent_card_routes(public_agent_card))
     routes.extend(create_jsonrpc_routes(request_handler, '/'))
+    routes.append(Route("/debug", debug_route, methods=["POST"]))
 
     app = Starlette(routes=routes, lifespan=lifespan)
 

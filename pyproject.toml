@@ -17,7 +17,8 @@ dependencies = [
     "langchain-anthropic>=1.4.1",
     "langchain>=1.2.15",
     "anthropic>=0.97.0",
-    "a2a-sdk>=1.0.2",
+    "a2a-sdk[grpc]==1.0.0",
+    "sse-starlette>=3.4.1",
 ]
 
 [tool.uv.sources]

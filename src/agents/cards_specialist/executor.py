@@ -6,7 +6,8 @@ from a2a.types import (
     TaskStatusUpdateEvent,
     TaskArtifactUpdateEvent,
 )
-from a2a.utils import new_task_from_user_message, new_text_artifact, new_text_message
+from a2a.types import Task, Message, Artifact
+
 import anthropic
 import os
 
@@ -16,7 +17,7 @@ class CardsAgent:
         self.system_prompt = """You are a banking cards specialist assistant.
 You help users with card-related queries such as card delivery, card activation, 
 card limits, lost or stolen cards, and card transactions.
-This is a mock environment — provide realistic but fictional responses."""
+This is a mock environment, provide realistic but fictional responses."""
 
     async def invoke(self, user_message: str) -> str:
         response = self.client.messages.create(
@@ -32,7 +33,11 @@ class CardsExecutor(AgentExecutor):
         self.agent = CardsAgent()
 
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
-        task = context.current_task or new_task_from_user_message(context.message)
+        task = context.current_task or Task(
+            id=context.task_id,
+            context_id=context.context_id,
+            history=[context.message],
+        )
         await event_queue.enqueue_event(task)
 
         await event_queue.enqueue_event(
@@ -41,19 +46,25 @@ class CardsExecutor(AgentExecutor):
                 context_id=context.context_id,
                 status=TaskStatus(
                     state=TaskState.TASK_STATE_WORKING,
-                    message=new_text_message("Processing your request..."),
+                    message=Message(
+                        role="ROLE_AGENT",
+                        parts=[{"text": "Processing your request..."}]
+                    ),
                 ),
             )
         )
 
-        user_message = context.message.parts[0].root.text
+        user_message = context.message.parts[0].text
         result = await self.agent.invoke(user_message)
 
         await event_queue.enqueue_event(
             TaskArtifactUpdateEvent(
                 task_id=context.task_id,
                 context_id=context.context_id,
-                artifact=new_text_artifact(name="response", text=result),
+                artifact=Artifact(
+                    name="response",
+                    parts=[{"text": result}]
+                )
             )
         )
 
