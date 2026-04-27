@@ -1,43 +1,36 @@
 # Banking Intent Router
 
-This project implements a banking intent router that uses a fine-tuned sentence transformer model to classify user queries and route them to specialized agents. The primary agent, the **Orchestrator**, acts as the main entry point, determining the user's intent and forwarding the request to the appropriate specialist. If the query falls outside the supported intents, the Orchestrator will inform the user that it cannot assist.
+This project is a banking intent router built with the `a2a` (Agent-to-Agent) framework. It uses a fine-tuned sentence transformer model to classify user queries and route them to the appropriate specialist agent. Fine-tuning improved the model's accuracy from 84.94% to 91.30%, resulting in a 6.36% improvement in intent classification.
 
-The project includes a **Cards Specialist** agent, which is equipped to handle a wide range of card-related inquiries. This specialist agent leverages a powerful language model to provide accurate and contextually relevant responses to user questions about card delivery, activation, limits, and other related topics.
+## Technical Overview
 
-## Key Features
+The system consists of two main types of agents:
 
-- **Intent-Based Routing**: The Orchestrator agent uses a fine-tuned sentence transformer model to accurately identify the user's intent.
-- **Specialized Agents**: The system is designed to be extensible with multiple specialist agents, each an expert in a specific domain.
-- **Out-of-Scope Handling**: Queries that do not match any of the predefined intents are gracefully handled by the Orchestrator.
-- **Scalable Architecture**: The project is structured to support the addition of new specialist agents as the range of supported banking services grows.
+1.  **Orchestrator Agent**:
+    - Acts as the primary entry point for all user queries.
+    - Uses a `sentence-transformers/all-MiniLM-L6-v2` model fine-tuned with PEFT for intent classification.
+    - Performs intent detection by encoding the user's message and calculating the cosine similarity against pre-computed centroids for each intent.
+    - If the similarity score is above a threshold (0.75), it routes the request to the corresponding specialist agent. Otherwise, it's handled as out-of-scope.
+    - The server is built using `Starlette` and `uvicorn`.
 
-## How It Works
+2.  **Cards Specialist Agent**:
+    - A specialized agent responsible for handling all card-related banking queries.
+    - Uses the Anthropic API to generate conversational responses.
+    - Defines its capabilities and the intents it can handle (e.g., `card_arrival`, `lost_or_stolen_card`) in its `AgentCard`.
 
-The core of the intent detection mechanism lies in the `OrchestratorAgent`, which performs the following steps:
+## Core Technologies
 
-1. **Encodes the user's message** into a high-dimensional vector using the fine-tuned sentence transformer model.
-2. **Calculates the cosine similarity** between the user's message embedding and pre-computed centroids for each supported intent.
-3. **Identifies the intent** with the highest similarity score.
-4. **Routes the request** to the specialist agent registered for that intent.
-
-If the highest similarity score is below a certain threshold (e.g., 0.75), the query is considered "out of scope."
+- **Machine Learning**:
+  - `sentence-transformers`: For generating text embeddings.
+  - `peft`: For efficient fine-tuning of the transformer model using Low-Rank Adaptation (LoRA).
+  - `numpy`: For centroid calculations.
+- **Frameworks & Libraries**:
+  - `a2a`: For the underlying agent communication and server structure.
+  - `Starlette` & `uvicorn`: For the asynchronous web server implementation.
+  - `anthropic`: For integration with the Anthropic language model.
 
 ## Project Structure
 
-The project is organized into the following key directories:
-
-- **`src/agents/`**: This directory contains the core logic for the Orchestrator and specialist agents.
-  - **`orchestrator/`**: The main agent that routes user queries.
-  - **`cards_specialist/`**: A specialized agent for handling card-related questions.
-- **`src/data/`**: Includes notebooks and data for training the intent detection model.
-- **`src/training/`**: Contains notebooks and artifacts related to model fine-tuning, centroid computation, and embedding evaluation.
-
-This modular structure allows for the independent development and deployment of specialist agents, making the system flexible and easy to maintain.
-
-## Getting Started
-
-To run the project, you will need to install the necessary dependencies and set up the environment. The `pyproject.toml` file lists all the required packages. Once the environment is configured, you can start the Orchestrator and specialist agent servers.
-
-The Orchestrator agent provides a command-line interface for interacting with the system. You can type your banking-related queries, and the agent will route them to the appropriate specialist for a response.
-
-This project serves as a robust foundation for building a comprehensive, AI-powered banking assistant that can efficiently handle a wide variety of user requests.
+- **`src/agents/`**: Contains the implementation for the `Orchestrator` and `Cards Specialist` agents.
+- **`src/data/`**: Holds the data and notebooks (`preprocessing.ipynb`) used for training.
+- **`src/training/`**: Contains notebooks for model fine-tuning (`finetune.ipynb`), centroid computation (`compute_centroids.ipynb`), and evaluation (`evaluate_embeddings.ipynb`). The fine-tuned model, centroids, and checkpoints are also stored here.
