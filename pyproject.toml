@@ -19,6 +19,7 @@ dependencies = [
     "anthropic>=0.97.0",
     "a2a-sdk[grpc]==1.0.0",
     "sse-starlette>=3.4.1",
+    "matplotlib>=3.10.9",
 ]
 
 [tool.uv.sources]

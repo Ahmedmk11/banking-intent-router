@@ -22,6 +22,9 @@ SPECIALIST_URLS = [
     "http://127.0.0.1:8001",
 ]
 
+from transformers.utils import logging
+logging.set_verbosity_error()
+
 class OrchestratorAgent:
     def __init__(self):
         from sentence_transformers import SentenceTransformer
@@ -84,7 +87,7 @@ class OrchestratorAgent:
         
         entry = self.agent_registry.get(prediction)
         if not entry:
-            return f"LOG: Intent specialist doesn't exist: {prediction}"
+            return f"[{prediction.upper()} SPECIALIST]: Routed successfully. Specialist agent not yet implemented."
 
         client = entry["client"]
         request = ParseDict(
